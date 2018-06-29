@@ -1,0 +1,9 @@
+body {
+
+    background-color: #eee;
+    background-image: -webkit-linear-gradient(to bottom, #d7d7d7, #eeeeee 116px);
+    font-family: 'Roboto Condensed', sans-serif;
+	line-height:1.15; /* More suitable for this font than semantic default. */
+    margin-left: 10px;
+    margin-right: 10px;
+}

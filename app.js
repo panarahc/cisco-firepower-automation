@@ -17,6 +17,14 @@ app.use(cookieParser());
 
 app.set("view engine", "ejs");
 
+app.get("/", function(req, res) {
+    res.render("index");
+});
+
+app.get("/fpmcapi", function(req, res) {
+    res.render("fpmcapi");
+});
+
 var fpwr = {
     fpmc_server: "https://10.255.0.12",
     ftd_token_url: "https://10.255.0.10/api/fdm/v1/fdm/token",
@@ -32,8 +40,6 @@ var fpwr = {
         "password": "automate"
     } // used to request a token from the FTD API
 };
-
-
 
 // Basic workflow
 // Attempt to load auth tokens from file.  Refresh if necessary
