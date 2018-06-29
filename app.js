@@ -39,8 +39,8 @@ var fpwr = {
 // Attempt to load auth tokens from file.  Refresh if necessary
 // Create a basic ACPolicy (complete)
 // Add devices and record UUIDs
-// configure zones
 // configure interfaces
+// configure zones
 // configure ha pairs/groups
 // deploy config changes
 
@@ -49,7 +49,7 @@ var fpwr = {
 // amp file policies
 // create a standard URL filtering policy
 
-var fpwr_services = {};
+var fpwr_servicesURL = {};
 
 fpmcAPI.post({
     url: fpwr.fpmc_server + "/api/fmc_platform/v1/auth/generatetoken",
@@ -72,7 +72,7 @@ fpmcAPI.post({
 });
 
 fpwr.methods = function(uuid) {
-    fpwr_services = {
+    fpwr_servicesURL = {
         deployabledevices: "/api/fmc_config/v1/domain/" + uuid + "/deployment/deployabledevices",
         devicegrouprecords: "/api/fmc_config/v1/domain/" + uuid + "/devicegroups/devicegrouprecords",
         devicerecords: "/api/fmc_config/v1/domain/" + uuid + "/devices/devicerecords",
@@ -96,74 +96,77 @@ fpwr.methods = function(uuid) {
     }
 }
 
-fpwr.devicerecords = function(domainUUID, containerUUID){
-	this.fpphysicalinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/fpphysicalinterfaces",
-	this.fplogicalinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/fplogicalinterfaces",
-	this.inlinesets = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/inlinesets",
-	this.virtualswitches = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/virtualswitches",
-	this.physicalinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/physicalinterfaces",
-	this.redundantinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/redundantinterfaces",
-	this.etherchannelinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/etherchannelinterfaces",
-	this.subinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/subinterfaces"
+fpwr.devicerecordsURL = function(domainUUID, containerUUID) {
+    this.fpphysicalinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/fpphysicalinterfaces",
+    this.fplogicalinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/fplogicalinterfaces",
+    this.inlinesets = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/inlinesets",
+    this.virtualswitches = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/virtualswitches",
+    this.physicalinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/physicalinterfaces",
+    this.redundantinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/redundantinterfaces",
+    this.etherchannelinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/etherchannelinterfaces",
+    this.subinterfaces = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/subinterfaces",
+    this.staticroutes = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/routing/staticroutes",
+    this.ipv4staticroutes = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/routing/ipv4staticroutes",
+    this.ipv6staticroutes = "/api/fmc_config/v1/domain/" + domainUUID + "/devices/devicerecords/" + containerUUID + "/routing/ipv6staticroutes"
 }
 
 fpwr.ACPolicy = function(name, description, iName, iuuid, vName, vuuid, logBegin, logEnd, send) {
     this.type = "AccessPolicy",
-        this.name = name,
-        this.description = description,
-        this.defaultAction = {
-            intrusionPolicy: {
-                name: iName || "Balanced Security and Connectivity",
-                id: iuuid || "abba00a0-cf29-425c-9d75-49699aadc898",
-                type: "IntrusionPolicy"
-            },
-            variableSet: {
-                name: vName || "Default Set",
-                id: vuuid || "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
-                type: "VariableSet"
-            },
-            type: "AccessPolicyDefaultAction",
-            logBegin: true,
-            logEnd: false,
-            sendEventsToFMC: true
-        }
+    this.name = name,
+    this.description = description,
+    this.defaultAction = {
+        intrusionPolicy: {
+            name: iName || "Balanced Security and Connectivity",
+            id: iuuid || "abba00a0-cf29-425c-9d75-49699aadc898",
+            type: "IntrusionPolicy"
+        },
+        variableSet: {
+            name: vName || "Default Set",
+            id: vuuid || "76fa83ea-c972-11e2-8be8-8e45bb1343c0",
+            type: "VariableSet"
+        },
+        type: "AccessPolicyDefaultAction",
+        logBegin: true,
+        logEnd: false,
+        sendEventsToFMC: true
+    }
 }
 
 fpwr.deviceRecord = function(name, hostname, natID, key, licArray, accessPolicyUUID) {
     this.name = name,
-        this.hostName = hostname,
-        this.natID = natID || "cisco123",
-        this.regKey = key,
-        this.type = "Device",
-        this.license_caps = licArray || ["BASE", "THREAT"],
-        this.accessPolicy = {
-            id: accessPolicyUUID,
-            type: "AccessPolicy"
-        }
+    this.hostName = hostname,
+    this.natID = natID || "cisco123",
+    this.regKey = key,
+    this.type = "Device",
+    this.license_caps = licArray || ["BASE", "THREAT"],
+    this.accessPolicy = {
+        id: accessPolicyUUID,
+        type: "AccessPolicy"
+    }
 }
 
 fpwr.ngipsPhysicalIntf = function(name, id, enabled, type) {
     this.name = "s1p4",
-        this.type = "FPPhysicalInterface",
-        this.id = "fpphysicalinterfaceUUID2",
-        this.enabled = 1,
-        this.interfaceType = "INLINE"
+    this.type = "FPPhysicalInterface",
+    this.id = "fpphysicalinterfaceUUID2",
+    this.enabled = 1,
+    this.interfaceType = "INLINE"
 }
 
 fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, ifname, ipv4method, ipv4, ipv4mask, name, uuid) {
     // update this to include zones afterwards
     this.type = "PhysicalInterface",
-        this.mode = mode,
-        this.hardware = {
-            duplex: duplex,
-            speed: speed
-        },
-        this.enabled = enabled,
-        this.MTU = MTU,
-        this.managementOnly = false,
-        this.ifname = ifname,
-        this.name = name,
-        this.id = uuid
+    this.mode = mode,
+    this.hardware = {
+        duplex: duplex,
+        speed: speed
+    },
+    this.enabled = enabled,
+    this.MTU = MTU,
+    this.managementOnly = false,
+    this.ifname = ifname,
+    this.name = name,
+    this.id = uuid
     if (ipv4method === "dhcp") {
         this.ipv4 = {
             dhcp: {
@@ -181,10 +184,40 @@ fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, ifname, ipv4
     }
 }
 
+fpwr.securityzone = function(name, description, interfaceMode, intfid, intfname) {
+    //Passive, Inline, Switched, Routed, ASA
+    this.type = "SecurityZone",
+    this.name = name,
+    this.interfaceMode = interfaceMode,
+    this.interfaces = [
+        type: "PhysicalInterface",
+        id: intfid,
+        name: intfname
+    ]
+}
+
+fpwr.getDeviceIDByName = function(deviceName) {
+    var allDevices = getAPI(fpwr_servicesURL.devicerecords, 200, "getDeviceIDByName", "success");
+    if (typeof allDevices !== "undefined") {
+        var foundID = _.forEach(allDevices.items, function(value, key) {
+                if (value.name === deviceName) {
+                    return value.id;
+                }
+        });
+        return foundID;
+    }
+}
+
+fpwr.getInterfaceIDbyName = function(intfName, deviceName) {
+    var tmpDevice = new fpwr.devicerecordsURL(fpwr.domain_uuid, fpwr.getAPI(fpwr_servicesURL.devicerecords, deviceName, 200));
+    var deviceID = fpwr.getAPI(fpwr_servicesURL.devicerecords, id, 200);
+    var interfaceID = fpwr.getAPI(url, intfName, 200);
+}
+
 fpwr.postACPolicy = function() {
     var policy = new fpwr.ACPolicy("API Post", "It worked!!!");
     fpmcAPI.post({
-        url: fpwr.fpmc_server + fpwr_services.accesspolicies,
+        url: fpwr.fpmc_server + fpwr_servicesURL.accesspolicies,
         headers: {
             "X-auth-access-token": fpwr.authToken,
             "Content-Type": "application/json"
@@ -201,7 +234,7 @@ fpwr.postACPolicy = function() {
             fpwr.ACPolicybase = { name: data.name, id: data.id }
             fpwr.postDeviceRecord();
         } else {
-        	let data = JSON.parse(response.body);
+            let data = JSON.parse(response.body);
             console.log(response.statusCode, response.statusMessage);
             console.log(data.description);
         }
@@ -210,8 +243,8 @@ fpwr.postACPolicy = function() {
 
 fpwr.postDeviceRecord = function() {
     if (typeof fpwr.ACPolicybase.id !== "undefined") {
-        var device = new fpwr.deviceRecord("FTDv-EDGE1", "10.255.0.10", "cisco123", "cisco123", ["BASE", "THREAT"], fpwr.ACPolicybase.id),
-            url = fpwr.fpmc_server + fpwr_services.devicerecords,
+        var device = new fpwr.deviceRecord("FTDv-EDGE2", "10.255.0.10", "cisco123", "cisco123", ["BASE", "THREAT"], fpwr.ACPolicybase.id),
+            url = fpwr.fpmc_server + fpwr_servicesURL.devicerecords,
             responseCode = 202,
             successMessage = "Device successfully registered";
         fpwr.postAPI(url, device, responseCode, "postDeviceRecord", successMessage);
@@ -241,8 +274,7 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
         } else if (response.statusCode === responseCode) {
             console.log(response.statusCode, "success", successMessage);
             let data = JSON.parse(response.body);
-               setTimeout(function(){
-            	fpwr.getAPI(fpwr_services.taskstatuses, data.metadata.task.id, 200);}, 5000);
+            console.log(fpwr.getDeviceIDByName("FTDv-EDGE2"));
         } else {
             console.log(response.statusCode, response.statusMessage);
             console.log(response.body.description);
@@ -251,9 +283,9 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
     });
 }
 
-fpwr.getAPI = function(url, id, responseCode) {
+fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
     fpmcAPI.get({
-        url: url + "/" + id,
+        url: url + id,
         headers: { "X-auth-access-token": fpwr.authToken },
         rejectUnauthorized: false,
         requestCert: true,
@@ -261,9 +293,9 @@ fpwr.getAPI = function(url, id, responseCode) {
         if (error) {
             console.log(error);
         } else if (response.statusCode === responseCode) {
-            console.log(response.statusCode, "success");
+            console.log(response.statusCode, callingFunction, successMessage);
             let data = JSON.parse(response.body);
-            console.log(data);
+            return (data);
         } else {
             console.log(response.statusCode, response.statusMessage);
         }
@@ -274,25 +306,10 @@ http.listen(port, function() {
     console.log("listening on:", port);
 });
 
-// ftdRequest.post({
-//	headers: {"Content-Type" : "application/json"},
-//	rejectUnauthorized: false,
-//	requestCert: true,
-//	url: fpwr.ftd_token_url,
-//	json: true,
-//	body: fpwr.ftd_token_opts
-//}, function(error, response, body) {
-//	if (error) {
-//		console.log(error);
-//	} else {
-//		console.log(response);
-//	}
-//});
-
 fpwr.getACPolicyByAPI = function(id) {
     if (typeof id !== "undefined") {
         fpmcRequest.get({
-            url: fpwr.fpmc_server + fpwr_services.accesspolicies + "/" + id,
+            url: fpwr.fpmc_server + fpwr_servicesURL.accesspolicies + "/" + id,
             headers: { "X-auth-access-token": fpwr.authToken },
             rejectUnauthorized: false,
             requestCert: true,
