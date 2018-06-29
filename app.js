@@ -190,9 +190,11 @@ fpwr.securityzone = function(name, description, interfaceMode, intfid, intfname)
     this.name = name,
     this.interfaceMode = interfaceMode,
     this.interfaces = [
-        type: "PhysicalInterface",
-        id: intfid,
-        name: intfname
+    	{
+	        type: "PhysicalInterface",
+	        id: intfid,
+	        name: intfname
+    	}
     ]
 }
 
