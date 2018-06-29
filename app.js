@@ -199,7 +199,7 @@ fpwr.securityzone = function(name, description, interfaceMode, intfid, intfname)
 }
 
 fpwr.getDeviceIDByName = function(deviceName) {
-    var allDevices = getAPI(fpwr_servicesURL.devicerecords, 200, "getDeviceIDByName", "success");
+    var allDevices = fpwr.getAPI(fpwr_servicesURL.devicerecords, 200, "getDeviceIDByName", "success");
     if (typeof allDevices !== "undefined") {
         var foundID = _.forEach(allDevices.items, function(value, key) {
                 if (value.name === deviceName) {
@@ -217,7 +217,7 @@ fpwr.getInterfaceIDbyName = function(intfName, deviceName) {
 }
 
 fpwr.postACPolicy = function() {
-    var policy = new fpwr.ACPolicy("API Post", "It worked!!!");
+    var policy = new fpwr.ACPolicy("API Post 2", "It worked!!!");
     fpmcAPI.post({
         url: fpwr.fpmc_server + fpwr_servicesURL.accesspolicies,
         headers: {
@@ -246,7 +246,7 @@ fpwr.postACPolicy = function() {
 fpwr.postDeviceRecord = function() {
     if (typeof fpwr.ACPolicybase.id !== "undefined") {
         var device = new fpwr.deviceRecord("FTDv-EDGE2", "10.255.0.10", "cisco123", "cisco123", ["BASE", "THREAT"], fpwr.ACPolicybase.id),
-            url = fpwr.fpmc_server + fpwr_servicesURL.devicerecords,
+            url = fpwr_servicesURL.devicerecords,
             responseCode = 202,
             successMessage = "Device successfully registered";
         fpwr.postAPI(url, device, responseCode, "postDeviceRecord", successMessage);
@@ -261,7 +261,7 @@ fpwr.putAPI = function(url, postData, responseCode, callingFunction, successMess
 
 fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMessage) {
     fpmcAPI.post({
-        url: url,
+        url: fpwr.fpmc_server + url,
         headers: {
             "X-auth-access-token": fpwr.authToken,
             "Content-Type": "application/json"
@@ -276,7 +276,7 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
         } else if (response.statusCode === responseCode) {
             console.log(response.statusCode, "success", successMessage);
             let data = JSON.parse(response.body);
-            console.log(fpwr.getDeviceIDByName("FTDv-EDGE2"));
+            return data;
         } else {
             console.log(response.statusCode, response.statusMessage);
             console.log(response.body.description);
@@ -286,8 +286,11 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
 }
 
 fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
+	if (typeof id !== "undefined"){
+		url = url + "/" + id;
+	}
     fpmcAPI.get({
-        url: url + id,
+        url: fpwr.fpmc_server + url,
         headers: { "X-auth-access-token": fpwr.authToken },
         rejectUnauthorized: false,
         requestCert: true,
@@ -297,7 +300,7 @@ fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
         } else if (response.statusCode === responseCode) {
             console.log(response.statusCode, callingFunction, successMessage);
             let data = JSON.parse(response.body);
-            return (data);
+            return data;
         } else {
             console.log(response.statusCode, response.statusMessage);
         }
