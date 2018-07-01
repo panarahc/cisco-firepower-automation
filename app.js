@@ -130,8 +130,7 @@ fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
                 fpwr.socketResponse(successMessage, response.body);
             } else {
                 return response;
-            }
-            
+            }            
         } else {
             console.log(response.statusCode, response.statusMessage);
         }
@@ -325,7 +324,7 @@ fpwr.ngipsPhysicalIntf = function(name, id, enabled, type) {
     this.interfaceType = "INLINE"
 }
 
-fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, ifname, ipv4method, ipv4, ipv4mask, name, uuid) {
+fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, ifname, name, uuid, ipv4method, ipv4, ipv4mask) {
     // update this to include zones afterwards
     this.type = "PhysicalInterface",
     this.mode = mode,
@@ -370,54 +369,8 @@ fpwr.securityzone = function(name, description, interfaceMode, intfid, intfname)
     ]
 }
 
-fpwr.getDeviceIDByName = function(deviceName) {
-    var allDevices = fpwr.getAPI(fpwr_servicesURL.devicerecords, 200, "getDeviceIDByName", "success");
-    if (typeof allDevices !== "undefined") {
-        var foundID = _.forEach(allDevices.items, function(value, key) {
-                if (value.name === deviceName) {
-                    return value.id;
-                }
-        });
-        return foundID;
-    }
-}
+fpwr.getUUIDByName = function(uri, name) {
 
-fpwr.getInterfaceIDbyName = function(intfName, deviceName) {
-    var tmpDevice = new fpwr.devicerecordsURL(fpwr.domain_uuid, fpwr.getAPI(fpwr_servicesURL.devicerecords, deviceName, 200));
-    var deviceID = fpwr.getAPI(fpwr_servicesURL.devicerecords, id, 200);
-    var interfaceID = fpwr.getAPI(url, intfName, 200);
-}
-
-fpwr.postDeviceRecord = function() {
-    if (typeof fpwr.ACPolicybase.id !== "undefined") {
-        var device = new fpwr.deviceRecord("FTDv-EDGE2", "10.255.0.11", "cisco123", "cisco123", ["BASE", "THREAT"], fpwr.ACPolicybase.id),
-            url = fpwr_servicesURL.devicerecords,
-            responseCode = 202,
-            successMessage = "Device successfully registered";
-        fpwr.postAPI(url, device, responseCode, "postDeviceRecord", successMessage);
-    } else {
-        console.log("AC Policy is missing");
-    }
-}
-
-fpwr.getACPolicyByAPI = function(id) {
-    if (typeof id !== "undefined") {
-        fpmcRequest.get({
-            url: fpwr.fpmc_server + fpwr_servicesURL.accesspolicies + "/" + id,
-            headers: { "X-auth-access-token": fpwr.authToken },
-            rejectUnauthorized: false,
-            requestCert: true,
-        }, function(error, response, body) {
-            if (error) {
-                console.log(error);
-            } else if (response.statusCode === 200) {
-                console.log(response.statusCode, "success");
-                console.log(JSON.parse(response.body));
-            } else {
-                console.log(response.statusCode, response.statusMessage);
-            }
-        });
-    }
 }
 
 fpwr.registered = function() {
