@@ -1,0 +1,95 @@
+<% include partials/header.ejs %>
+
+<form id="fpmcCredentials" class="ui form">
+	<div class="fields">
+		<div class="required field">
+			<label>FPMC IP</label>
+			<input type="text" name="fpmcip" value="10.255.0.12">
+		</div>
+		<div class="required field">
+			<label>Username</label>
+			<input type="text" name="fpmcuser" value="automate">
+		</div>
+		<div class="required field">
+			<label>Password</label>
+			<input type="text" name="fpmcpass" value="automate">
+		</div>
+	</div>
+	<button class="ui button" type="submit">Submit</button>
+</form>
+
+<form id="fpmcProfile" class="ui form">
+	<div class="fields">
+		<div class="required field">
+			<label>FPMC IP</label>
+			<input type="text" name="fpmcip" value="10.255.0.12">
+		</div>
+	</div>	
+	<button class="ui button" type="submit">Submit</button>
+</form>
+
+<form id="acPolicyPost" class="ui form">
+	<div class="fields">
+		<div class="required field">
+			<label>ACPolicy Name</label>
+			<input type="text" name="acpolicy" value="API Policy">
+		</div>
+		<div class="required field">
+			<label>ACPolicy Description</label>
+			<input type="text" name="acpolicydesc" value="This policy was automated">
+		</div>
+	</div>	
+	<button class="ui button" type="submit">Submit</button>
+</form>
+
+<form id="devicePost" class="ui form">
+	<div class="fields">
+		<div class="required field">
+			<label>Device Name</label>
+			<input type="text" name="devicename" value="FTDv-Edge1">
+		</div>		
+		<div class="required field">
+			<label>Host Name</label>
+			<input type="text" name="hostname" value="10.255.0.10">
+		</div>		
+		<div class="required field">
+			<label>NAT ID</label>
+			<input type="text" name="devicenat" value="cisco123">
+		</div>		
+		<div class="required field">
+			<label>Registration Key</label>
+			<input type="text" name="devicekey" value="cisco123">
+		</div>		
+		<div class="field">
+			<label>Access Policy</label>
+			<input type="text" name="devicepol" value="">
+		</div>
+	</div>	
+	<div class="fields">
+		<div class="field">
+			<label>Threat License</label>
+			<input type="checkbox" name="lic" value="THREAT">
+		</div>
+		<div class="field">
+			<label>Malware License</label>
+			<input type="checkbox" name="lic" value="MALWARE">
+		</div>
+		<div class="field">
+			<label>URL Filter License</label>
+			<input type="checkbox" name="lic" value="URLFilter">
+		</div>
+	</div>
+	<button class="ui blue button" type="submit">Submit</button>
+</form>
+
+<div class="ui message">
+	<p></p>
+</div>
+
+<div class="ui segment">
+	<div class="ui loader">
+		<span id="regResult"></span>
+	</div>	
+</div>
+
+<% include partials/footer.ejs %>

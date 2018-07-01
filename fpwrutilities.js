@@ -1,89 +1,10 @@
-// Basic workflow
-// Attempt to load auth tokens from file.  Refresh if necessary
-// Create a basic ACPolicy (complete)
-// Add devices and record UUIDs
-// configure interfaces
-// configure zones
-// configure ha pairs/groups
-// deploy config changes
-
-// advanced config:
-// Nat policies
-// amp file policies
-// create a standard URL filtering policy
-
-const express = require("express"),
-    app = express(),
-    http = require("http").createServer(app),
-    io = require("socket.io")(http),
-    cookieParser = require("cookie-parser"),
-    session = require("express-session"),
-    OathRestClient = require("oauth-rest-client"),
-    bodyParser = require("body-parser"),
-    fpmcAPI = require("request-promise"),
-    ftdRequest = require("request-promise"),
-    _ = require("lodash"),
-    port = process.env.PORT || 8080;
-
-app.use(express.static(__dirname + "/public"));
-app.use(cookieParser());
-
-app.set("view engine", "ejs");
-
-app.get("/", function(req, res) {
-    res.render("index");
-});
-
-app.get("/fpmcapi", function(req, res) {
-    res.render("fpmcapi");
-});
-
-app.get("/unit", function(req, res, next) {
-	res.render("unit");
-});
-
-io.on("connection", function(socket){
-
-	socket.on("client-ready", function() {
-		console.log(socket.id);
-		fpwr.currentClient = socket.id;
-	});
-
-	socket.on("fpmc-register", function(msg) {
-		if (typeof msg !== undefined){
-			fpwr.registerAPI(msg.fpmcip, msg.fpmcuser, msg.fpmcpass);
-		}
-	});
-
-    socket.on("fpmc-profile", function(msg) {
-        if (typeof msg !== undefined){
-            fpwr.serverversion(msg.fpmcip);
-        }
-    });
-	socket.on("acpolicy-post", function(msg) {
-		if (typeof msg !== undefined){
-            console.log(msg);
-			fpwr.acPolicyPost(msg.acpolicy, msg.acpolicydesc);
-		}
-	});
-
-    socket.on("device-post", function(msg) {
-        if (typeof msg !== undefined){
-            fpwr.devicePost(msg.devicename, msg.hostname, msg.devicenat, msg.devicekey, msg.devicepol, msg.lic);
-        }
-    });
-});
-
-http.listen(port, function() {
-    console.log("listening on:", port);
-});
-
 var fpwr = {
-    servicesURL: {},
-    fpmcTokenURL: "/api/fmc_platform/v1/auth/generatetoken",
-    ftdTokenURL: "/api/fdm/v1/fdm/token",
+    servicesURL: {};
+    fpmc_server: "https://10.255.0.12",
+    ftd_token_url: "https://10.255.0.10/api/fdm/v1/fdm/token",
     username: "automate",
     password: "automate",
+    fpmcAuth: "Basic " + new Buffer(username + ":" + password).toString("base64"),
     authToken: "", // used in requests to the FPMC API
     authRefreshToken: "", // used in requests to refresh the FPMC token
     domain_uuid: "", // used in all FPMC REST requests
@@ -94,106 +15,62 @@ var fpwr = {
     } // used to request a token from the FTD API
 };
 
-fpwr.serverversion = function (server){
-    fpwr.getAPI(fpwr.servicesURL.serverversion, 200, "serverversion", "profile-result");
-}
-
-fpwr.acPolicyPost = function(name, desc) {
-    var policy = new fpwr.ACPolicy(name, desc);
-    fpwr.postAPI(fpwr.servicesURL.accesspolicies, policy, 201, "acPolicyPost", "acpolicypost-result");
-}
-
-fpwr.devicePost = async function(name, hostname, nat, key, policy, lic) {
-    var uridev = fpwr.servicesURL.devicerecords;
-    var device = new fpwr.deviceRecord(name, hostname, nat, key, lic);
-    fpwr.postAPI(uridev, device, 202, "devicePost", "devicepost-result");
-}
-
-fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
-    if (typeof id !== "undefined"){
-        url = url + "/" + id;
-    }
-    var options = {
-    	method: "GET",
-        uri: fpwr.fpmc_server + url,
-        headers: { "X-auth-access-token": fpwr.authToken },
-        resolveWithFullResponse: true,
+fpwr.registerAPI = function(server, username, password){
+    fpwr.fpmc_server = "https://" + server;
+    fpwr.username = username;
+    fpwr.password = password;
+    fpwr.fpmcAuth = "Basic " + window.btoa(username + ":" + password);
+    $.ajax({
+        url: fpwr.fpmc_server + "/api/fmc_platform/v1/auth/generatetoken",
+        headers: { 
+            "Authorization": fpwr.fpmcAuth},
+        type: "post",
         rejectUnauthorized: false,
-        requestCert: true,
-        json: true
-    }
-    fpmcAPI(options)
-    .then(function(response) {
-        if (response.statusCode === responseCode) {
-            console.log(response.statusCode, callingFunction);
-            if (typeof successMessage !== "undefined") {
-                fpwr.socketResponse(successMessage, response.body);
-            } else {
-                return response;
-            }
-            
-        } else {
-            console.log(response.statusCode, response.statusMessage);
-        }
-    })
-    .catch(function(err){
-    	console.log(err);
+        requestCert: true
+    }).done(function(data, status, jqXHR) {
+        console.log(status, data);
+    }).fail(function(jqXHR, status, err) {
+        console.log(status, err);
     });
+    // fpmcAPI.post({
+    //     url: fpwr.fpmc_server + "/api/fmc_platform/v1/auth/generatetoken",
+    //     headers: { "Authorization": fpwr.fpmcAuth },
+    //     rejectUnauthorized: false,
+    //     requestCert: true,
+    // }, function(error, response, body) {
+    //     if (error) {
+    //         console.log(error);
+    //     } else if (response.statusCode === 204) {
+    //         fpwr.authToken = response.headers["x-auth-access-token"];
+    //         fpwr.authRefreshToken = response.headers["x-auth-refresh-token"];
+    //         fpwr.domain_uuid = response.headers["domain_uuid"];
+    //         fpwr.methods(response.headers["domain_uuid"]);
+    //         console.log(response.statusCode, "successfully registered");
+    //     } else {
+    //         console.log(response.statusCode, response.statusMessage);
+    //     }
+    // });
 }
 
-fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMessage, id) {
-    if (typeof id !== "undefined"){
-        url = url + "/" + id;
-    }
-    var options = {
-        method: "POST",
-        uri: fpwr.fpmc_server + url,
+fpwr.putAPI = function(url, postData, responseCode, callingFunction, successMessage) {
+
+}
+
+fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMessage) {
+    fpmcAPI.post({
+        url: fpwr.fpmc_server + url,
         headers: {
             "X-auth-access-token": fpwr.authToken,
             "Content-Type": "application/json"
         },
-        body: postData,
-        resolveWithFullResponse: true,
         rejectUnauthorized: false,
         requestCert: true,
-        json: true
-    }
-    fpmcAPI(options)
-    .then(function(response) {
-        if (response.statusCode === responseCode) {
-            console.log(response.statusCode, "success", successMessage);
-            fpwr.socketResponse(successMessage, response.body);
-        } else {
-            console.log(response.statusCode, response.statusMessage);
-            console.log(response.body.description);
+        body: JSON.stringify(postData)
+    }, function(error, response, body) {
+        if (error) {
+            console.log(callingFunction, error);
             return false;
-        }
-    })
-    .catch(function(err){
-        console.log(err);
-    });
-}
-
-fpwr.putAPI = function(url, putData, responseCode, callingFunction, successMessage, id) {
-    if (typeof id !== "undefined"){
-        url = url + "/" + id;
-    }
-    var options = {
-        method: "PUT",
-        uri: fpwr.fpmc_server + url,
-        headers: {
-            "X-auth-access-token": fpwr.authToken,
-            "Content-Type": "application/json"
-        },
-        body: postData,
-        resolveWithFullResponse: true,
-        rejectUnauthorized: false,
-        requestCert: true,
-        json: true
-    }
-    fpmcAPI(options)
-    .then(function(response) {
-        if (response.statusCode === responseCode) {
+        } else if (response.statusCode === responseCode) {
             console.log(response.statusCode, "success", successMessage);
             let data = JSON.parse(response.body);
             return data;
@@ -202,42 +79,29 @@ fpwr.putAPI = function(url, putData, responseCode, callingFunction, successMessa
             console.log(response.body.description);
             return false;
         }
-    })
-    .catch(function(err){
-        console.log(err);
     });
 }
 
-fpwr.registerAPI = function(server, username, password){
-    fpwr.fpmc_server = "https://" + server;
-    fpwr.username = username;
-    fpwr.password = password;
-    fpwr.fpmcAuth = "Basic " + new Buffer(username + ":" + password).toString("base64");
-	var options = {
-		method: "POST",
-		uri: fpwr.fpmc_server + fpwr.fpmcTokenURL,
-		headers: { "Authorization": fpwr.fpmcAuth },
-		resolveWithFullResponse: true,
+fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
+    if (typeof id !== "undefined"){
+        url = url + "/" + id;
+    }
+    fpmcAPI.get({
+        url: fpwr.fpmc_server + url,
+        headers: { "X-auth-access-token": fpwr.authToken },
         rejectUnauthorized: false,
         requestCert: true,
-        json: true
-	}
-	fpmcAPI(options)
-	.then(function(response) {
-		if (response.statusCode === 204){
-			fpwr.authToken = response.headers["x-auth-access-token"];
-            fpwr.authRefreshToken = response.headers["x-auth-refresh-token"];
-            fpwr.domain_uuid = response.headers["domain_uuid"];
-            fpwr.methods(response.headers["domain_uuid"]);
-            console.log(response.statusCode, "successfully registered");
-            fpwr.registered(response);
-		} else {
-			console.log(response.statusCode, response.statusMessage);
-		}
-	})
-	.catch(function (err) {
-		console.log(err);
-	});
+    }, function(error, response, body) {
+        if (error) {
+            console.log(error);
+        } else if (response.statusCode === responseCode) {
+            console.log(response.statusCode, callingFunction, successMessage);
+            let data = JSON.parse(response.body);
+            return data;
+        } else {
+            console.log(response.statusCode, response.statusMessage);
+        }
+    });
 }
 
 fpwr.methods = function(uuid) {
@@ -307,13 +171,10 @@ fpwr.deviceRecord = function(name, hostname, natID, key, licArray, accessPolicyU
     this.natID = natID || "cisco123",
     this.regKey = key,
     this.type = "Device",
-    this.license_caps = licArray || ["BASE", "THREAT"]
-
-    if (typeof accessPolicyUUID !== "undefined") {
-        this.accessPolicy = {
-            id: accessPolicyUUID,
-            type: "AccessPolicy"
-        }
+    this.license_caps = licArray || ["BASE", "THREAT"],
+    this.accessPolicy = {
+        id: accessPolicyUUID,
+        type: "AccessPolicy"
     }
 }
 
@@ -388,6 +249,33 @@ fpwr.getInterfaceIDbyName = function(intfName, deviceName) {
     var interfaceID = fpwr.getAPI(url, intfName, 200);
 }
 
+fpwr.postACPolicy = function() {
+    var policy = new fpwr.ACPolicy("API Post 2", "It worked!!!");
+    fpmcAPI.post({
+        url: fpwr.fpmc_server + fpwr_servicesURL.accesspolicies,
+        headers: {
+            "X-auth-access-token": fpwr.authToken,
+            "Content-Type": "application/json"
+        },
+        rejectUnauthorized: false,
+        requestCert: true,
+        body: JSON.stringify(policy)
+    }, function(error, response, body) {
+        if (error) {
+            console.log("postACPolicy", error);
+        } else if (response.statusCode === 201) {
+            console.log(response.statusCode, "success", "postACPolicy");
+            let data = JSON.parse(response.body);
+            fpwr.ACPolicybase = { name: data.name, id: data.id }
+            fpwr.postDeviceRecord();
+        } else {
+            let data = JSON.parse(response.body);
+            console.log(response.statusCode, response.statusMessage);
+            console.log(data.description);
+        }
+    });
+}
+
 fpwr.postDeviceRecord = function() {
     if (typeof fpwr.ACPolicybase.id !== "undefined") {
         var device = new fpwr.deviceRecord("FTDv-EDGE2", "10.255.0.11", "cisco123", "cisco123", ["BASE", "THREAT"], fpwr.ACPolicybase.id),
@@ -418,12 +306,4 @@ fpwr.getACPolicyByAPI = function(id) {
             }
         });
     }
-}
-
-fpwr.registered = function() {
-	io.to(fpwr.currentClient).emit("register-success", fpwr);
-}
-
-fpwr.socketResponse = function(socketEvent, object) {
-	io.to(fpwr.currentClient).emit(socketEvent, object);
 }
