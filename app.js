@@ -12,6 +12,12 @@
 // amp file policies
 // create a standard URL filtering policy
 
+//support for simultaenous users
+// On registration something like...
+// create a unique UUID for a new socket connection
+// fpwr[UUID] = new ManagedObject(params);
+// the CRUD functions would need to know the UUID of the user
+
 const express = require("express"),
     app = express(),
     http = require("http").createServer(app),
@@ -62,10 +68,15 @@ io.on("connection", function(socket){
     });
 	socket.on("acpolicy-post", function(msg) {
 		if (typeof msg !== undefined){
-            console.log(msg);
 			fpwr.acPolicyPost(msg.acpolicy, msg.acpolicydesc);
 		}
 	});
+
+    socket.on("acpolicy-getID", function(msg) {
+        if (typeof msg !== undefined){
+            fpwr.acPolicyGet(fpwr.servicesURL.accesspolicies,  msg.acpolicy);
+        }
+    });
 
     socket.on("device-post", function(msg) {
         if (typeof msg !== undefined){
@@ -82,11 +93,19 @@ var fpwr = {
     servicesURL: {},
     fpmcTokenURL: "/api/fmc_platform/v1/auth/generatetoken",
     ftdTokenURL: "/api/fdm/v1/fdm/token",
+    currentTaskUUID: "",
     username: "automate",
     password: "automate",
     authToken: "", // used in requests to the FPMC API
     authRefreshToken: "", // used in requests to refresh the FPMC token
     domain_uuid: "", // used in all FPMC REST requests
+    getOptions:{
+        method: "GET",
+        resolveWithFullResponse: true,
+        rejectUnauthorized: false,
+        requestCert: true,
+        json: true
+    },
     ftd_token_opts: {
         "grant_type": "password",
         "username": "automate",
@@ -105,8 +124,18 @@ fpwr.acPolicyPost = function(name, desc) {
 
 fpwr.devicePost = async function(name, hostname, nat, key, policy, lic) {
     var uridev = fpwr.servicesURL.devicerecords;
-    var device = new fpwr.deviceRecord(name, hostname, nat, key, lic);
+    var polUUID = await fpwr.getUUIDbyName(fpwr.servicesURL.accesspolicies, policy);
+    var device = new fpwr.deviceRecord(name, hostname, nat, key, lic, polUUID);
     fpwr.postAPI(uridev, device, 202, "devicePost", "devicepost-result");
+}
+
+fpwr.getUUIDbyName = async function(url, name) {
+    fpwr.getOptions.uri = fpwr.fpmc_server + url;
+    var UUIDobj = await fpmcAPI(fpwr.getOptions);
+    _.forEach(UUIDobj.body.items, (value, index) => {
+        if (value.name === name) UUID = value.id;
+    });
+    return UUID;
 }
 
 fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
@@ -208,6 +237,7 @@ fpwr.putAPI = function(url, putData, responseCode, callingFunction, successMessa
 }
 
 fpwr.registerAPI = function(server, username, password){
+    console.log("Registering:", server, username);
     fpwr.fpmc_server = "https://" + server;
     fpwr.username = username;
     fpwr.password = password;
@@ -227,6 +257,7 @@ fpwr.registerAPI = function(server, username, password){
 			fpwr.authToken = response.headers["x-auth-access-token"];
             fpwr.authRefreshToken = response.headers["x-auth-refresh-token"];
             fpwr.domain_uuid = response.headers["domain_uuid"];
+            fpwr.getOptions.headers = { "X-auth-access-token": fpwr.authToken };
             fpwr.methods(response.headers["domain_uuid"]);
             console.log(response.statusCode, "successfully registered");
             fpwr.registered(response);
@@ -367,10 +398,6 @@ fpwr.securityzone = function(name, description, interfaceMode, intfid, intfname)
             name: intfname
         }
     ]
-}
-
-fpwr.getUUIDByName = function(uri, name) {
-
 }
 
 fpwr.registered = function() {

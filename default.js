@@ -42,6 +42,17 @@ var API = API || {};
             $(".ui.loader").toggleClass("active");
         });
 
+        $('#acPolicyGet').on('submit', function(e) {
+            e.preventDefault();
+            var $inputs = $(':input');
+            var values = {};
+            $inputs.each(function() {
+                values[this.name] = $(this).val();
+            });
+            API.socket.emit("acpolicy-getID", values);
+            $(".ui.loader").toggleClass("active");
+        });        
+
         $('#devicePost').on('submit', function(e) {
             e.preventDefault();
             var $inputs = $(':input');
