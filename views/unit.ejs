@@ -1,6 +1,6 @@
 <% include partials/header.ejs %>
 
-<form id="fpmcCredentials" class="ui form">
+<form id="fpmccredentials" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>FPMC IP</label>
@@ -15,10 +15,10 @@
 			<input type="text" name="fpmcpass" value="automate">
 		</div>
 	</div>
-	<button class="ui button" type="submit">Submit</button>
+<!-- 	<button class="ui button" type="submit">Submit</button> -->
 </form>
 
-<form id="fpmcProfile" class="ui form">
+<!-- <form id="fpmcProfile" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>FPMC IP</label>
@@ -26,9 +26,9 @@
 		</div>
 	</div>	
 	<button class="ui button" type="submit">Submit</button>
-</form>
+</form> -->
 
-<form id="acPolicyPost" class="ui form">
+<form id="accesspoliciespost" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>ACPolicy Name</label>
@@ -39,10 +39,10 @@
 			<input type="text" name="acpolicydesc" value="This policy was automated">
 		</div>
 	</div>	
-	<button class="ui button" type="submit">Submit</button>
+<!-- 	<button class="ui button" type="submit">Submit</button> -->
 </form>
 
-<form id="acPolicyGet" class="ui form">
+<!-- <form id="acPolicyGet" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>ACPolicy Name</label>
@@ -50,47 +50,52 @@
 		</div>
 	</div>	
 	<button class="ui button" type="submit">Submit</button>
-</form>
+</form> -->
 
-<form id="devicePost" class="ui form">
-	<div class="fields">
-		<div class="required field">
-			<label>Device Name</label>
-			<input type="text" name="devicename" value="FTDv-Edge1">
-		</div>		
-		<div class="required field">
-			<label>Host Name</label>
-			<input type="text" name="hostname" value="10.255.0.10">
-		</div>		
-		<div class="required field">
-			<label>NAT ID</label>
-			<input type="text" name="devicenat" value="cisco123">
-		</div>		
-		<div class="required field">
-			<label>Registration Key</label>
-			<input type="text" name="devicekey" value="cisco123">
-		</div>		
-		<div class="field">
-			<label>Access Policy</label>
-			<input type="text" name="devicepol" value="">
-		</div>
-	</div>	
-	<div class="fields">
-		<div class="field">
-			<label>Threat License</label>
-			<input type="checkbox" name="lic" value="THREAT">
-		</div>
-		<div class="field">
-			<label>Malware License</label>
-			<input type="checkbox" name="lic" value="MALWARE">
-		</div>
-		<div class="field">
-			<label>URL Filter License</label>
-			<input type="checkbox" name="lic" value="URLFilter">
-		</div>
-	</div>
-	<button class="ui blue button" type="submit">Submit</button>
-</form>
+<div id="device">
+	<form id="devicerecordpost" class="ui form">
+		<div class="fields">
+			<div class="required field">
+				<label>Device Name</label>
+				<input type="text" name="devicename" value="FTDv-Edge1">
+			</div>		
+			<div class="required field">
+				<label>Host Name</label>
+				<input type="text" name="hostname" value="10.255.0.10">
+			</div>		
+			<div class="required field">
+				<label>NAT ID</label>
+				<input type="text" name="devicenat" value="cisco123">
+			</div>		
+			<div class="required field">
+				<label>Registration Key</label>
+				<input type="text" name="devicekey" value="cisco123">
+			</div>		
+			<div class="field">
+				<label>Access Policy</label>
+				<input type="text" name="devicepol" value="">
+			</div>
+		</div>	
+		<div class="fields">
+			<div class="field">
+				<label>Threat License</label>
+				<input type="checkbox" name="lic" value="THREAT">
+			</div>
+			<div class="field">
+				<label>Malware License</label>
+				<input type="checkbox" name="lic" value="MALWARE">
+			</div>
+			<div class="field">
+				<label>URL Filter License</label>
+				<input type="checkbox" name="lic" value="URLFilter">
+			</div>
+		</div>			
+	</form>
+</div>
+
+<button id="newdevice" class="ui primary button">New Device</button>
+<button id="removedevice" class="ui primary button">Remove Device</button>
+<button id="submit" class="ui secondary button">Submit All</button>
 
 <div class="ui message">
 	<p></p>

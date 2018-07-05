@@ -1,7 +1,12 @@
-// Basic workflow
-// Attempt to load auth tokens from file.  Refresh if necessary
-// Create a basic ACPolicy (complete)
-// Add devices and record UUIDs
+// need a way to check and handle a current running task. 
+// implementation idea:
+// receive all requested data to run tasks
+// store all tasks in a database
+// run the first task.  All APIs should have a "run next" method at the end.
+// run next should check for a currently running task, if not, run the next job
+// if a running task is found, send to a function that sets a timeout and calls run next.
+// have some kind of counter for each settimeout.  When a new job starts, that counter is reset.
+
 // configure interfaces
 // configure zones
 // configure ha pairs/groups
@@ -11,6 +16,7 @@
 // Nat policies
 // amp file policies
 // create a standard URL filtering policy
+// error handling
 
 //support for simultaenous users
 // On registration something like...
@@ -56,33 +62,41 @@ io.on("connection", function(socket){
 	});
 
 	socket.on("fpmc-register", function(msg) {
-		if (typeof msg !== undefined){
+		if (typeof msg !== "undefined"){
 			fpwr.registerAPI(msg.fpmcip, msg.fpmcuser, msg.fpmcpass);
 		}
 	});
 
     socket.on("fpmc-profile", function(msg) {
-        if (typeof msg !== undefined){
+        if (typeof msg !== "undefined"){
             fpwr.serverversion(msg.fpmcip);
         }
     });
 	socket.on("acpolicy-post", function(msg) {
-		if (typeof msg !== undefined){
+		if (typeof msg !== "undefined"){
 			fpwr.acPolicyPost(msg.acpolicy, msg.acpolicydesc);
 		}
 	});
 
     socket.on("acpolicy-getID", function(msg) {
-        if (typeof msg !== undefined){
+        if (typeof msg !== "undefined"){
             fpwr.acPolicyGet(fpwr.servicesURL.accesspolicies,  msg.acpolicy);
         }
     });
 
     socket.on("device-post", function(msg) {
-        if (typeof msg !== undefined){
+        if (typeof msg !== "undefined"){
             fpwr.devicePost(msg.devicename, msg.hostname, msg.devicenat, msg.devicekey, msg.devicepol, msg.lic);
         }
     });
+
+    socket.on("new-automation", function(msg) {
+        if (typeof msg !== "undefined") {
+            console.log("automation received", new Date().toTimeString());
+            fpwr.tasklist = msg;
+            fpwr.checktask();
+        }
+    })
 });
 
 http.listen(port, function() {
@@ -94,6 +108,8 @@ var fpwr = {
     fpmcTokenURL: "/api/fmc_platform/v1/auth/generatetoken",
     ftdTokenURL: "/api/fdm/v1/fdm/token",
     currentTaskUUID: "",
+    tasklist: [],
+    timeoutCounter: 0,
     username: "automate",
     password: "automate",
     authToken: "", // used in requests to the FPMC API
@@ -113,16 +129,101 @@ var fpwr = {
     } // used to request a token from the FTD API
 };
 
+fpwr.runtask = function() {
+    console.log("running new task", new Date().toTimeString());
+    if (typeof fpwr.tasklist[0] == "undefined"){
+        console.log("Congratulations! You have reached the end of the internet.", new Date().toTimeString());
+    } else {
+        var currenttask = fpwr.tasklist[0];
+        var keynames = Object.keys(currenttask);
+        switch (keynames[0]){
+            case "fpmccredentials":
+                var server = currenttask[keynames[0]].fpmcip,
+                    username = currenttask[keynames[0]].fpmcuser,
+                    password = currenttask[keynames[0]].fpmcpass;
+                fpwr.registerAPI(server, username, password);
+                break;
+            case "accesspoliciespost":
+                var policyname = currenttask[keynames[0]].acpolicy,
+                    policydesc = currenttask[keynames[0]].acdesc;
+                fpwr.acPolicyPost(policyname, policydesc);
+                break;
+            case "devicerecordpost":
+                    var devicename = currenttask[keynames[0]].devicename,
+                        hostname = currenttask[keynames[0]].hostname,
+                        nat = currenttask[keynames[0]].devicenat,
+                        key = currenttask[keynames[0]].devicekey,
+                        policy = currenttask[keynames[0]].devicepol,
+                        lic = currenttask[keynames[0]].lic;
+                        fpwr.devicePost(devicename, hostname, nat, key, policy, lic);
+                break;
+
+            default:
+                console.log("Yes, we have no bananas today", new Date().toTimeString());
+        }
+    }
+}
+
+fpwr.checktask = function() {
+    console.log("checking task", new Date().toTimeString());
+    if (fpwr.timeoutCounter > 10){
+        console.log("too many timeouts", new Date().toTimeString());
+    } else if (fpwr.currentTaskUUID !== "") {
+        fpwr.gettaskstatus();
+        setTimeout(fpwr.checktask, 30000);
+    } else {
+        fpwr.timeoutCounter = 0;
+        fpwr.runtask();
+    }
+}
+
+// {
+//   "id": "a5b01f3e-8028-11e8-a4aa-39f03cd096a3",
+//   "type": "TaskStatus",
+//   "links": {
+//     "self": "https://10.255.0.12/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/job/taskstatuses/a5b01f3e-8028-11e8-a4aa-39f03cd096a3"
+//   },
+//   "taskType": "DEVICE_REGISTRATION",
+//   "description": "RESTful task",
+//   "status": "Running"
+// }
+
+// Status Code: 404
+// Accept-Ranges: bytes
+// Cache-Control: no-cache, no-store, must-revalidate, max-age=0
+// Connection: Keep-Alive
+// Content-Type: application/json
+// Date: Thu, 05 Jul 2018 07:58:40 GMT
+// Keep-Alive: timeout=5, max=100
+// Server: Apache
+// Transfer-Encoding: chunked
+// Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
+// X-Frame-Options: SAMEORIGIN
+
+
+fpwr.gettaskstatus = async function() {
+    fpwr.getOptions.uri = fpwr.fpmc_server + fpwr.servicesURL.taskstatuses + "/" + fpwr.currentTaskUUID;
+    fpmcAPI(fpwr.getOptions)
+    .then( () => {
+        console.log("not yet", new Date().toTimeString());
+    })
+    .catch(function(err){
+        fpwr.currentTaskUUID = "";
+    })
+}
+
 fpwr.serverversion = function (server){
     fpwr.getAPI(fpwr.servicesURL.serverversion, 200, "serverversion", "profile-result");
 }
 
 fpwr.acPolicyPost = function(name, desc) {
+    console.log("building new access policy", new Date().toTimeString());
     var policy = new fpwr.ACPolicy(name, desc);
     fpwr.postAPI(fpwr.servicesURL.accesspolicies, policy, 201, "acPolicyPost", "acpolicypost-result");
 }
 
 fpwr.devicePost = async function(name, hostname, nat, key, policy, lic) {
+    console.log("building new device record", new Date().toTimeString());
     var uridev = fpwr.servicesURL.devicerecords;
     var polUUID = await fpwr.getUUIDbyName(fpwr.servicesURL.accesspolicies, policy);
     var device = new fpwr.deviceRecord(name, hostname, nat, key, lic, polUUID);
@@ -169,10 +270,7 @@ fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
     });
 }
 
-fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMessage, id) {
-    if (typeof id !== "undefined"){
-        url = url + "/" + id;
-    }
+fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMessage) {
     var options = {
         method: "POST",
         uri: fpwr.fpmc_server + url,
@@ -190,7 +288,13 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
     .then(function(response) {
         if (response.statusCode === responseCode) {
             console.log(response.statusCode, "success", successMessage);
+            fpwr.tasklist.shift();
             fpwr.socketResponse(successMessage, response.body);
+            if (typeof response.body.metadata.hasOwnProperty("task")){
+                fpwr.currentTaskUUID = response.body.metadata.task.id;
+                console.log(fpwr.currentTaskUUID);
+            }
+            fpwr.checktask();
         } else {
             console.log(response.statusCode, response.statusMessage);
             console.log(response.body.description);
@@ -222,7 +326,7 @@ fpwr.putAPI = function(url, putData, responseCode, callingFunction, successMessa
     fpmcAPI(options)
     .then(function(response) {
         if (response.statusCode === responseCode) {
-            console.log(response.statusCode, "success", successMessage);
+            console.log(response.statusCode, "success", successMessage, new Date().toTimeString());
             let data = JSON.parse(response.body);
             return data;
         } else {
@@ -259,8 +363,10 @@ fpwr.registerAPI = function(server, username, password){
             fpwr.domain_uuid = response.headers["domain_uuid"];
             fpwr.getOptions.headers = { "X-auth-access-token": fpwr.authToken };
             fpwr.methods(response.headers["domain_uuid"]);
-            console.log(response.statusCode, "successfully registered");
+            console.log(response.statusCode, "successfully registered", new Date().toTimeString());
+            fpwr.tasklist.shift();
             fpwr.registered(response);
+            fpwr.checktask();
 		} else {
 			console.log(response.statusCode, response.statusMessage);
 		}

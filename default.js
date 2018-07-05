@@ -51,9 +51,9 @@ var API = API || {};
             });
             API.socket.emit("acpolicy-getID", values);
             $(".ui.loader").toggleClass("active");
-        });        
+        });
 
-        $('#devicePost').on('submit', function(e) {
+        $('#devicerecordpost').on('submit', function(e) {
             e.preventDefault();
             var $inputs = $(':input');
             var $checked = $("input:checked");
@@ -62,12 +62,49 @@ var API = API || {};
             $inputs.each(function() {
                 values[this.name] = $(this).val();
             });
-            $checked.each(function(){
-            	checkedvalues.push($(this).val());
+            $checked.each(function() {
+                checkedvalues.push($(this).val());
             });
             values.lic = checkedvalues;
             API.socket.emit("device-post", values);
             $(".ui.loader").toggleClass("active");
+        });
+
+        $("#submit").on('click', function(e) {
+            e.preventDefault();
+            var tasks = [];
+
+            $(".ui.form").map(function(idx, form) {
+                var $form = $(this);
+                var formid = $form.attr("id");
+                var $inputs = $form.find("input[type=text]");
+                var tmpObj = {};
+                tmpObj[formid] = {};
+                $inputs.each(function() {
+                    tmpObj[formid][this.name] = $(this).val();
+                });
+                if ($checked = $form.find('input:checked').length){
+	                var $checked = $form.find('input:checked');
+	                var checkarray = [];
+	                $checked.each(function() {
+	                	checkarray.push(this.value);
+	                });
+	                tmpObj[formid][$checked[0].name] = checkarray;
+                }
+                tasks.push(tmpObj);
+            });
+            console.log(tasks);
+            API.socket.emit("new-automation", tasks);
+        });
+
+        $("#newdevice").on('click', function(e) {
+        	e.preventDefault();
+        	$('#devicerecordpost').clone().appendTo('#device');
+        });
+
+        $("#removedevice").on('click', function(e) {
+        	e.preventDefault();
+        	$('#device').children("form").last().remove();
         });
     }
 
@@ -79,12 +116,12 @@ var API = API || {};
     API.socket.on("profile-result", function(msg) {
         $(".ui.loader").toggleClass("active");
         $("p").text("FPMC profile result: " + JSON.stringify(msg));
-    });    
+    });
     API.socket.on("acpolicypost-result", function(msg) {
         $(".ui.loader").toggleClass("active");
         $("p").text("ACPolicy post result: " + JSON.stringify(msg));
     });
-  	API.socket.on("devicepost-result", function(msg) {
+    API.socket.on("devicepost-result", function(msg) {
         $(".ui.loader").toggleClass("active");
         $("p").text("Device post result: " + JSON.stringify(msg));
     });
