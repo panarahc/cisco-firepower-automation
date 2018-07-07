@@ -93,13 +93,27 @@
 		</div>			
 	</form>
 	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui form">
-		<div class="five fields">
+		<div class="six fields">
 			<div class="required field">
 				<label>interface</label>
-				<select name="name" class="ui selection dropdown">
-					<option name="name" selected value="GigabitEthernet0/0">GigabitEthernet0/0</option>
-					<option name="name" value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-					<option name="name" value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+				<select name="physicalinterface" class="ui selection dropdown">
+					<option name="physicalinterface" selected value="GigabitEthernet0/0">GigabitEthernet0/0</option>
+					<option name="physicalinterface" value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+					<option name="physicalinterface" value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>enabled</label>
+				<select name="enabled" class="ui selection dropdown">
+					<option name="enabled" selected value="true">enabled</option>
+					<option name="enabled" value="false">disabled</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>ip type</label>
+				<select name="ipv4method" class="ui selection dropdown">
+					<option name="ipv4method" selected value="static">static</option>
+					<option name="ipv4method" value="dhcp">dhcp</option>
 				</select>
 			</div>
 			<div class="required field">
@@ -126,21 +140,50 @@
 					<option name="speed" value="100">100</option>
 					<option name="speed" value="1000">1000</option>
 				</select>
+			</div>
+		</div>
+		<div class="four fields">
+			<div class="required field">
+				<label>ip address</label>
+				<input type="text" name="ipv4" value="">
+			</div>
+			<div class="required field">
+				<label>subnet mask</label>
+				<input type="text" name="ipv4mask" value="">
+			</div>
+			<div class="required field">
+				<label>MTU</label>
+				<input type="text" name="MTU" value="1500">
 			</div>
 			<div class="required field">
 				<label>interface name</label>
 				<input type="text" name="logicalname" value="OUTSIDE">
 			</div>
 		</div>
+		</div>
 	</form>
 	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui form">
-		<div class="five fields">
+		<div class="six fields">
 			<div class="required field">
 				<label>interface</label>
-				<select class="ui selection dropdown">
-					<option name="name" value="GigabitEthernet0/0">GigabitEthernet0/0</option>
-					<option name="name" selected value="GigabitEthernet0/1">GigabitEthernet0/1</option>
-					<option name="name" value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+				<select name="physicalinterface" class="ui selection dropdown">
+					<option name="physicalinterface" value="GigabitEthernet0/0">GigabitEthernet0/0</option>
+					<option name="physicalinterface" selected value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+					<option name="physicalinterface" value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>enabled</label>
+				<select name="enabled" class="ui selection dropdown">
+					<option name="enabled" selected value="true">enabled</option>
+					<option name="enabled" value="false">disabled</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>ip type</label>
+				<select name="ipv4method" class="ui selection dropdown">
+					<option name="ipv4method" selected value="static">static</option>
+					<option name="ipv4method" value="dhcp">dhcp</option>
 				</select>
 			</div>
 			<div class="required field">
@@ -168,11 +211,26 @@
 					<option name="speed" value="1000">1000</option>
 				</select>
 			</div>
+		</div>
+		<div class="four fields">
+			<div class="required field">
+				<label>ip address</label>
+				<input type="text" name="ipv4" value="">
+			</div>
+			<div class="required field">
+				<label>subnet mask</label>
+				<input type="text" name="ipv4mask" value="">
+			</div>
+			<div class="required field">
+				<label>MTU</label>
+				<input type="text" name="MTU" value="1500">
+			</div>
 			<div class="required field">
 				<label>interface name</label>
 				<input type="text" name="logicalname" value="INSIDE">
 			</div>
-		</div>	
+		</div>
+		</div>
 	</form>
 	</div>
 </div>

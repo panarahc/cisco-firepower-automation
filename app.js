@@ -148,6 +148,14 @@ fpwr.runtask = function() {
                         lic = currenttask[keynames[0]].lic;
                         fpwr.devicePost(devicename, hostname, nat, key, policy, lic);
                 break;
+            case "devicephysicalintfput":
+                var mode = ,
+                    duplex = ,
+                    speed = ,
+                    enabled = ,
+                    logicalname = ,
+                    
+
 
             default:
                 console.log("Yes, we have no bananas today", new Date().toTimeString());
@@ -168,30 +176,6 @@ fpwr.checktask = function() {
         fpwr.runtask();
     }
 }
-
-// {
-//   "id": "a5b01f3e-8028-11e8-a4aa-39f03cd096a3",
-//   "type": "TaskStatus",
-//   "links": {
-//     "self": "https://10.255.0.12/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/job/taskstatuses/a5b01f3e-8028-11e8-a4aa-39f03cd096a3"
-//   },
-//   "taskType": "DEVICE_REGISTRATION",
-//   "description": "RESTful task",
-//   "status": "Running"
-// }
-
-// Status Code: 404
-// Accept-Ranges: bytes
-// Cache-Control: no-cache, no-store, must-revalidate, max-age=0
-// Connection: Keep-Alive
-// Content-Type: application/json
-// Date: Thu, 05 Jul 2018 07:58:40 GMT
-// Keep-Alive: timeout=5, max=100
-// Server: Apache
-// Transfer-Encoding: chunked
-// Vary: Accept-Charset,Accept-Encoding,Accept-Language,Accept
-// X-Frame-Options: SAMEORIGIN
-
 
 fpwr.gettaskstatus = async function() {
     fpwr.getOptions.uri = fpwr.fpmc_server + fpwr.servicesURL.taskstatuses + "/" + fpwr.currentTaskUUID;
@@ -468,7 +452,7 @@ fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, logicalname,
     this.MTU = MTU,
     this.managementOnly = false,
     this.ifname = logicalname,
-    this.name = name,
+    // this.name = name,
     this.id = uuid
     if (ipv4method === "dhcp") {
         this.ipv4 = {
