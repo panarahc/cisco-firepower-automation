@@ -1,1 +1,149 @@
-var API=API||{};!function(e){"use strict";API.socket=io.connect("http://10.255.0.100:8080"),API.ready=function(){API.socket.emit("client-ready","client-ready"),e(".ui.dropdown").dropdown(),e("#fpmcCredentials").on("submit",function(t){t.preventDefault();var i={};e(":input").each(function(){i[this.name]=e(this).val()}),API.socket.emit("fpmc-register",i),e(".ui.loader").toggleClass("active")}),e("#fpmcProfile").on("submit",function(t){t.preventDefault();var i={};e(":input").each(function(){i[this.name]=e(this).val()}),API.socket.emit("fpmc-profile",i),e(".ui.loader").toggleClass("active")}),e("#acPolicyPost").on("submit",function(t){t.preventDefault();var i={};e(":input").each(function(){i[this.name]=e(this).val()}),API.socket.emit("acpolicy-post",i),e(".ui.loader").toggleClass("active")}),e("#acPolicyGet").on("submit",function(t){t.preventDefault();var i={};e(":input").each(function(){i[this.name]=e(this).val()}),API.socket.emit("acpolicy-getID",i),e(".ui.loader").toggleClass("active")}),e("#devicerecordpost").on("submit",function(t){t.preventDefault();var i=e(":input"),n=e("input:checked"),o={},c=["BASE"];i.each(function(){o[this.name]=e(this).val()}),n.each(function(){c.push(e(this).val())}),o.lic=c,API.socket.emit("device-post",o),e(".ui.loader").toggleClass("active")}),e("#submit").on("click",function(t){t.preventDefault();var i=[];e(".ui.form").map(function(t,n){var o=e(this),c=o.attr("id"),a=o.find("input[type=text]"),s={};if(s[c]={},a.each(function(){s[c][this.name]=e(this).val()}),u=o.find("input:checked").length){var u=o.find("input:checked"),l=[];u.each(function(){l.push(this.value)}),s[c][u[0].name]=l}i.push(s)}),console.log(i),API.socket.emit("new-automation",i)}),e("#newdevice").on("click",function(t){t.preventDefault(),e("#devicerecordpost").clone().appendTo("#device")}),e("#removedevice").on("click",function(t){t.preventDefault(),e("#device").children("form").last().remove()})},API.socket.on("register-success",function(t){e(".ui.loader").toggleClass("active"),e("p").text("Registration successful: "+t.authToken+" "+t.authRefreshToken+" "+t.domain_uuid)}),API.socket.on("profile-result",function(t){e(".ui.loader").toggleClass("active"),e("p").text("FPMC profile result: "+JSON.stringify(t))}),API.socket.on("acpolicypost-result",function(t){e(".ui.loader").toggleClass("active"),e("p").text("ACPolicy post result: "+JSON.stringify(t))}),API.socket.on("devicepost-result",function(t){e(".ui.loader").toggleClass("active"),e("p").text("Device post result: "+JSON.stringify(t))}),e(function(){API.ready()})}(jQuery);
+var API = API || {};
+
+(function($) {
+    'use strict';
+
+    API.socket = io.connect("http://10.255.0.100:8080");
+
+    API.ready = function() {
+        API.socket.emit("client-ready", "client-ready");
+
+        $('.ui.dropdown').dropdown();
+
+        $("#device").on('change', ":input[name=devicename]", function(){
+           var $devicerecord = $(this).closest("#devicerecord");
+           var devicename = $(this).val();
+           console.log("changed");
+           $devicerecord.find("[data-id=devicephysicalintfput]").attr("data-device-name", devicename);
+        });
+
+        $('#fpmccredentials').on('submit', function(e) {
+            e.preventDefault();
+            var $inputs = $(':input');
+            var values = {};
+            $inputs.each(function() {
+                values[this.name] = $(this).val();
+            });
+            API.socket.emit("fpmc-register", values);
+            $(".ui.loader").toggleClass("active");
+        });
+
+        $('#fpmcProfile').on('submit', function(e) {
+            e.preventDefault();
+            var $inputs = $(':input');
+            var values = {};
+            $inputs.each(function() {
+                values[this.name] = $(this).val();
+            });
+            API.socket.emit("fpmc-profile", values);
+            $(".ui.loader").toggleClass("active");
+        });
+
+        $('#accesspoliciespost').on('submit', function(e) {
+            e.preventDefault();
+            var $inputs = $(':input');
+            var values = {};
+            $inputs.each(function() {
+                values[this.name] = $(this).val();
+            });
+            API.socket.emit("acpolicy-post", values);
+            $(".ui.loader").toggleClass("active");
+        });
+
+        $('#acPolicyGet').on('submit', function(e) {
+            e.preventDefault();
+            var $inputs = $(':input');
+            var values = {};
+            $inputs.each(function() {
+                values[this.name] = $(this).val();
+            });
+            API.socket.emit("acpolicy-getID", values);
+            $(".ui.loader").toggleClass("active");
+        });
+
+        $('#devicerecordpost').on('submit', function(e) {
+            e.preventDefault();
+            var $inputs = $(':input');
+            var $checked = $("input:checked");
+            var values = {};
+            var checkedvalues = ["BASE"];
+            $inputs.each(function() {
+                values[this.name] = $(this).val();
+            });
+            $checked.each(function() {
+                checkedvalues.push($(this).val());
+            });
+            values.lic = checkedvalues;
+            API.socket.emit("device-post", values);
+            $(".ui.loader").toggleClass("active");
+        });
+
+        $("#submit").on('click', function(e) {
+            e.preventDefault();
+            var tasks = [];
+
+            $(".ui.form").map(function(idx, form) {
+                var $form = $(this);
+                var formid = $form.attr("id");
+                var $inputs = $form.find("input[type=text]");
+                var tmpObj = {};
+                tmpObj[formid] = {};
+                $inputs.each(function() {
+                    tmpObj[formid][this.name] = $(this).val();
+                });
+                if ($form.find('input:checked').length){
+	                var $checked = $form.find('input:checked');
+	                var checkarray = [];
+	                $checked.each(function() {
+	                	checkarray.push(this.value);
+	                });
+	                tmpObj[formid][$checked[0].name] = checkarray;
+                }
+                if ($form.find('option:selected').length){
+                    var $selected = $form.find("option:selected");
+                    tmpObj[formid]["devicename"] = $form.attr("data-device-name");
+                    $selected.each(function(){
+                        tmpObj[formid][$(this).attr("name")] = $(this).val();
+                    });
+                }
+                tasks.push(tmpObj);
+            });
+            console.log(tasks);
+            // API.socket.emit("new-automation", tasks);
+        });
+
+        $("#newdevice").on('click', function(e) {
+        	e.preventDefault();
+        	$('#devicerecord').clone().appendTo('#device');
+        });
+
+        $("#removedevice").on('click', function(e) {
+        	e.preventDefault();
+        	$('#device').children("#devicerecord").last().remove();
+        });
+    }
+
+    API.socket.on("register-success", function(msg) {
+        $(".ui.loader").toggleClass("active");
+        $("p").text("Registration successful: " + msg.authToken + " " + msg.authRefreshToken + " " + msg.domain_uuid);
+    });
+
+    API.socket.on("profile-result", function(msg) {
+        $(".ui.loader").toggleClass("active");
+        $("p").text("FPMC profile result: " + JSON.stringify(msg));
+    });
+    API.socket.on("acpolicypost-result", function(msg) {
+        $(".ui.loader").toggleClass("active");
+        $("p").text("ACPolicy post result: " + JSON.stringify(msg));
+    });
+    API.socket.on("devicepost-result", function(msg) {
+        $(".ui.loader").toggleClass("active");
+        $("p").text("Device post result: " + JSON.stringify(msg));
+    });
+
+    // jQuery ready.
+    $(function() {
+        API.ready();
+    });
+
+})(jQuery);

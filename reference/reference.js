@@ -32,3 +32,156 @@ license_caps: [
   "URLFilter",
   "THREAT"
 ]
+
+{
+  "links": {
+    "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords?offset=0&limit=1"
+  },
+  "items": [
+    {
+      "id": "621deb54-80a3-11e8-97ac-dd9127b40102",
+      "type": "Device",
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102"
+      },
+      "name": "FTDv-Edge1"
+    }
+  ],
+  "paging": {
+    "offset": 0,
+    "limit": 1,
+    "count": 1,
+    "pages": 1
+  }
+}
+
+{
+  "id": "621deb54-80a3-11e8-97ac-dd9127b40102",
+  "type": "Device",
+  "links": {
+    "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102"
+  },
+  "name": "FTDv-Edge1",
+  "description": "NOT SUPPORTED",
+  "model": "Cisco Firepower Threat Defense for KVM",
+  "modelId": "B",
+  "modelNumber": "75",
+  "modelType": "Sensor",
+  "healthStatus": "green",
+  "sw_version": "6.2.3",
+  "healthPolicy": {
+    "id": "138e8de6-80a7-11e8-98cf-2913995f68ed",
+    "type": "HealthPolicy",
+    "name": "Initial_Health_Policy 2018-07-05 22:59:30"
+  },
+  "hostName": "10.255.0.11",
+  "license_caps": [
+    "THREAT"
+  ],
+  "keepLocalEvents": false,
+  "prohibitPacketTransfer": true,
+  "metadata": {
+    "readOnly": {
+      "state": false
+    },
+    "domain": {
+      "name": "Global",
+      "id": "e276abec-e0f2-11e3-8169-6d9ed49b625f",
+      "type": "domain"
+    }
+  }
+}
+
+{
+  "links": {
+    "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces?offset=0&limit=10"
+  },
+  "items": [
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935749"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/0",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935749"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935750"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/1",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935750"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935751"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/2",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935751"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935752"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/3",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935752"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935753"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/4",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935753"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935754"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/5",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935754"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935755"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/6",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935755"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935756"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/7",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935756"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935757"
+      },
+      "type": "PhysicalInterface",
+      "name": "GigabitEthernet0/8",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935757"
+    },
+    {
+      "links": {
+        "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/621deb54-80a3-11e8-97ac-dd9127b40102/physicalinterfaces/0CC78D19-EE00-0ed3-0000-008589935758"
+      },
+      "type": "PhysicalInterface",
+      "name": "Diagnostic0/0",
+      "id": "0CC78D19-EE00-0ed3-0000-008589935758"
+    }
+  ],
+  "paging": {
+    "offset": 0,
+    "limit": 10,
+    "count": 10,
+    "pages": 1
+  }
+}

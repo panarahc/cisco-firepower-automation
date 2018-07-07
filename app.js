@@ -1,12 +1,3 @@
-// need a way to check and handle a current running task. 
-// implementation idea:
-// receive all requested data to run tasks
-// store all tasks in a database
-// run the first task.  All APIs should have a "run next" method at the end.
-// run next should check for a currently running task, if not, run the next job
-// if a running task is found, send to a function that sets a timeout and calls run next.
-// have some kind of counter for each settimeout.  When a new job starts, that counter is reset.
-
 // configure interfaces
 // configure zones
 // configure ha pairs/groups
@@ -169,6 +160,7 @@ fpwr.checktask = function() {
     if (fpwr.timeoutCounter > 10){
         console.log("too many timeouts", new Date().toTimeString());
     } else if (fpwr.currentTaskUUID !== "") {
+        fpwr.timeoutCounter++;
         fpwr.gettaskstatus();
         setTimeout(fpwr.checktask, 30000);
     } else {
@@ -205,7 +197,7 @@ fpwr.gettaskstatus = async function() {
     fpwr.getOptions.uri = fpwr.fpmc_server + fpwr.servicesURL.taskstatuses + "/" + fpwr.currentTaskUUID;
     fpmcAPI(fpwr.getOptions)
     .then( () => {
-        console.log("not yet", new Date().toTimeString());
+        console.log("not yet", fpwr.timeoutCounter, "/10", new Date().toTimeString());
     })
     .catch(function(err){
         fpwr.currentTaskUUID = "";
@@ -250,7 +242,8 @@ fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
         resolveWithFullResponse: true,
         rejectUnauthorized: false,
         requestCert: true,
-        json: true
+        json: true,
+        simple: false
     }
     fpmcAPI(options)
     .then(function(response) {
@@ -263,6 +256,7 @@ fpwr.getAPI = function(url, responseCode, callingFunction, successMessage, id) {
             }            
         } else {
             console.log(response.statusCode, response.statusMessage);
+            console.log(response.body.error.messages);
         }
     })
     .catch(function(err){
@@ -282,7 +276,8 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
         resolveWithFullResponse: true,
         rejectUnauthorized: false,
         requestCert: true,
-        json: true
+        json: true,
+        simple: false
     }
     fpmcAPI(options)
     .then(function(response) {
@@ -290,19 +285,19 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
             console.log(response.statusCode, "success", successMessage);
             fpwr.tasklist.shift();
             fpwr.socketResponse(successMessage, response.body);
-            if (typeof response.body.metadata.hasOwnProperty("task")){
+            if (response.body.metadata.hasOwnProperty("task")){
                 fpwr.currentTaskUUID = response.body.metadata.task.id;
                 console.log(fpwr.currentTaskUUID);
             }
             fpwr.checktask();
         } else {
             console.log(response.statusCode, response.statusMessage);
-            console.log(response.body.description);
+            console.log(response.body.error.messages);
             return false;
         }
     })
     .catch(function(err){
-        console.log(err);
+            console.log(err.message);
     });
 }
 
@@ -461,7 +456,7 @@ fpwr.ngipsPhysicalIntf = function(name, id, enabled, type) {
     this.interfaceType = "INLINE"
 }
 
-fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, ifname, name, uuid, ipv4method, ipv4, ipv4mask) {
+fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, logicalname, name, uuid, ipv4method, ipv4, ipv4mask) {
     // update this to include zones afterwards
     this.type = "PhysicalInterface",
     this.mode = mode,
@@ -472,7 +467,7 @@ fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, ifname, name
     this.enabled = enabled,
     this.MTU = MTU,
     this.managementOnly = false,
-    this.ifname = ifname,
+    this.ifname = logicalname,
     this.name = name,
     this.id = uuid
     if (ipv4method === "dhcp") {
@@ -496,14 +491,17 @@ fpwr.securityzone = function(name, description, interfaceMode, intfid, intfname)
     //Passive, Inline, Switched, Routed, ASA
     this.type = "SecurityZone",
     this.name = name,
-    this.interfaceMode = interfaceMode,
-    this.interfaces = [
-        {
-            type: "PhysicalInterface",
-            id: intfid,
-            name: intfname
-        }
-    ]
+    this.interfaceMode = interfaceMode
+    if (typeof intfid !== "undefined"){
+        this.interfaces = [
+            {
+                type: "PhysicalInterface",
+                id: intfid,
+                name: intfname
+            }
+        ] 
+    }
+
 }
 
 fpwr.registered = function() {

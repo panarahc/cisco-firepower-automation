@@ -9,7 +9,14 @@ var API = API || {};
         API.socket.emit("client-ready", "client-ready");
 
         $('.ui.dropdown').dropdown();
-        $('#fpmcCredentials').on('submit', function(e) {
+
+        $("#device").on('change', ":input[name=devicename]", function(){
+           var $devicerecord = $(this).closest("#devicerecord");
+           var devicename = $(this).val();
+           $devicerecord.find("[data-id=devicephysicalintfput]").attr("data-device-name", devicename);
+        });
+
+        $('#fpmccredentials').on('submit', function(e) {
             e.preventDefault();
             var $inputs = $(':input');
             var values = {};
@@ -31,7 +38,7 @@ var API = API || {};
             $(".ui.loader").toggleClass("active");
         });
 
-        $('#acPolicyPost').on('submit', function(e) {
+        $('#accesspoliciespost').on('submit', function(e) {
             e.preventDefault();
             var $inputs = $(':input');
             var values = {};
@@ -83,13 +90,20 @@ var API = API || {};
                 $inputs.each(function() {
                     tmpObj[formid][this.name] = $(this).val();
                 });
-                if ($checked = $form.find('input:checked').length){
-	                var $checked = $form.find('input:checked');
-	                var checkarray = [];
-	                $checked.each(function() {
-	                	checkarray.push(this.value);
-	                });
-	                tmpObj[formid][$checked[0].name] = checkarray;
+                if ($form.find('input:checked').length){
+                    var $checked = $form.find('input:checked');
+                    var checkarray = [];
+                    $checked.each(function() {
+                        checkarray.push(this.value);
+                    });
+                    tmpObj[formid][$checked[0].name] = checkarray;
+                }
+                if ($form.find('option:selected').length){
+                    var $selected = $form.find("option:selected");
+                    tmpObj[formid]["devicename"] = $form.attr("data-device-name");
+                    $selected.each(function(){
+                        tmpObj[formid][$(this).attr("name")] = $(this).val();
+                    });
                 }
                 tasks.push(tmpObj);
             });
@@ -98,13 +112,13 @@ var API = API || {};
         });
 
         $("#newdevice").on('click', function(e) {
-        	e.preventDefault();
-        	$('#devicerecordpost').clone().appendTo('#device');
+            e.preventDefault();
+            $('#devicerecord').clone().appendTo('#device');
         });
 
         $("#removedevice").on('click', function(e) {
-        	e.preventDefault();
-        	$('#device').children("form").last().remove();
+            e.preventDefault();
+            $('#device').children("#devicerecord").last().remove();
         });
     }
 

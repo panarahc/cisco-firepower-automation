@@ -1,10 +1,10 @@
 <% include partials/header.ejs %>
 
-<form id="fpmccredentials" class="ui form">
+<form id="fpmccredentials" data-id="fpmccredentials" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>FPMC IP</label>
-			<input type="text" name="fpmcip" value="10.255.0.12">
+			<input type="text" name="fpmcip" value="10.255.0.10">
 		</div>
 		<div class="required field">
 			<label>Username</label>
@@ -15,20 +15,20 @@
 			<input type="text" name="fpmcpass" value="automate">
 		</div>
 	</div>
-<!-- 	<button class="ui button" type="submit">Submit</button> -->
+	<button class="ui button" type="submit">Submit</button>
 </form>
 
-<!-- <form id="fpmcProfile" class="ui form">
+<form id="fpmcProfile" data-id="fpmcProfile" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>FPMC IP</label>
-			<input type="text" name="fpmcip" value="10.255.0.12">
+			<input type="text" name="fpmcip" value="10.255.0.10">
 		</div>
 	</div>	
 	<button class="ui button" type="submit">Submit</button>
-</form> -->
+</form>
 
-<form id="accesspoliciespost" class="ui form">
+<form id="accesspoliciespost" data-id="accesspoliciespost" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>ACPolicy Name</label>
@@ -39,10 +39,10 @@
 			<input type="text" name="acpolicydesc" value="This policy was automated">
 		</div>
 	</div>	
-<!-- 	<button class="ui button" type="submit">Submit</button> -->
+	<button class="ui button" type="submit">Submit</button>
 </form>
 
-<!-- <form id="acPolicyGet" class="ui form">
+<form id="acPolicyGet" data-id="accesspoliciesget" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>ACPolicy Name</label>
@@ -50,14 +50,15 @@
 		</div>
 	</div>	
 	<button class="ui button" type="submit">Submit</button>
-</form> -->
+</form>
 
 <div id="device">
-	<form id="devicerecordpost" class="ui form">
+	<div id="devicerecord">
+	<form id="devicerecordpost" data-id="devicerecordpost" class="ui form">
 		<div class="fields">
 			<div class="required field">
 				<label>Device Name</label>
-				<input type="text" name="devicename" value="FTDv-Edge1">
+				<input type="text" name="devicename" value="FTDv-">
 			</div>		
 			<div class="required field">
 				<label>Host Name</label>
@@ -91,11 +92,96 @@
 			</div>
 		</div>			
 	</form>
+	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui form">
+		<div class="five fields">
+			<div class="required field">
+				<label>interface</label>
+				<select name="name" class="ui selection dropdown">
+					<option name="name" selected value="GigabitEthernet0/0">GigabitEthernet0/0</option>
+					<option name="name" value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+					<option name="name" value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>interface mode</label>
+				<select class="ui selection dropdown">
+					<option name="mode" selected value="none">none</option>
+					<option name="mode" value="passive">passive</option>
+					<option name="mode" value="erspan">erspan</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>duplex</label>
+				<select class="ui selection dropdown">
+					<option name="duplex" selected value="auto">auto</option>
+					<option name="duplex" value="half">half</option>
+					<option name="duplex" value="full">full</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>speed</label>
+				<select class="ui selection dropdown">
+					<option name="speed" selected value="auto">auto</option>
+					<option name="speed" value="10">10</option>
+					<option name="speed" value="100">100</option>
+					<option name="speed" value="1000">1000</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>interface name</label>
+				<input type="text" name="logicalname" value="OUTSIDE">
+			</div>
+		</div>
+	</form>
+	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui form">
+		<div class="five fields">
+			<div class="required field">
+				<label>interface</label>
+				<select class="ui selection dropdown">
+					<option name="name" value="GigabitEthernet0/0">GigabitEthernet0/0</option>
+					<option name="name" selected value="GigabitEthernet0/1">GigabitEthernet0/1</option>
+					<option name="name" value="GigabitEthernet0/2">GigabitEthernet0/2</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>interface mode</label>
+				<select class="ui selection dropdown">
+					<option name="mode" selected value="none">none</option>
+					<option name="mode" value="passive">passive</option>
+					<option name="mode" value="erspan">erspan</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>duplex</label>
+				<select class="ui selection dropdown">
+					<option name="duplex" selected value="auto">auto</option>
+					<option name="duplex" value="half">half</option>
+					<option name="duplex" value="full">full</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>speed</label>
+				<select class="ui selection dropdown">
+					<option name="speed" selected value="auto">auto</option>
+					<option name="speed" value="10">10</option>
+					<option name="speed" value="100">100</option>
+					<option name="speed" value="1000">1000</option>
+				</select>
+			</div>
+			<div class="required field">
+				<label>interface name</label>
+				<input type="text" name="logicalname" value="INSIDE">
+			</div>
+		</div>	
+	</form>
+	</div>
+</div>
+<div>
+	<button id="newdevice" class="ui primary button">New Device</button>
+	<button id="removedevice" class="ui primary button">Remove Device</button>
+	<button id="submit" class="ui secondary button">Submit All</button>
 </div>
 
-<button id="newdevice" class="ui primary button">New Device</button>
-<button id="removedevice" class="ui primary button">Remove Device</button>
-<button id="submit" class="ui secondary button">Submit All</button>
 
 <div class="ui message">
 	<p></p>
