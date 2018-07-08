@@ -185,3 +185,79 @@ license_caps: [
     "pages": 1
   }
 }
+
+{
+  "metadata": {
+    "timestamp": 1531006219110,
+    "domain": {
+      "name": "Global",
+      "id": "e276abec-e0f2-11e3-8169-6d9ed49b625f"
+    }
+  },
+  "links": {
+    "self": "https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/6350b2cc-80a3-11e8-b8ad-f19a641f91b7/physicalinterfaces/0CC78D19-EE00-0ed3-0000-012884902069"
+  },
+  "type": "PhysicalInterface",
+  "mode": "NONE",
+  "hardware": {
+    "duplex": "AUTO",
+    "speed": "AUTO"
+  },
+  "enabled": true,
+  "MTU": 1500,
+  "ifname": "OUTSIDE",
+  "fragmentReassembly": false,
+  "enableDNSLookup": false,
+  "enableAntiSpoofing": false,
+  "ipv4": {
+    "static": {
+      "address": "10.255.255.12",
+      "netmask": "24"
+    }
+  },
+  "ipv6": {
+    "enableDHCPAddrConfig": false,
+    "enableDHCPNonAddrConfig": false,
+    "dadAttempts": 1,
+    "nsInterval": 1000,
+    "reachableTime": 0,
+    "enableRA": true,
+    "raLifeTime": 1800,
+    "raInterval": 200,
+    "enableAutoConfig": false,
+    "enableIPV6": false,
+    "enforceEUI64": false
+  },
+  "managementOnly": false,
+  "name": "GigabitEthernet0/0",
+  "id": "0CC78D19-EE00-0ed3-0000-012884902069"
+}
+
+{ metadata: 
+   { timestamp: 1531006431430,
+     domain: { name: 'Global', id: 'e276abec-e0f2-11e3-8169-6d9ed49b625f' } },
+  links: 
+   { self: 'https://10.255.0.10/api/fmc_config/v1/domain/e276abec-e0f2-11e3-8169-6d9ed49b625f/devices/devicerecords/6350b2cc-80a3-11e8-b8ad-f19a641f91b7/physicalinterfaces/0CC78D19-EE00-0ed3-0000-012884902069' },
+  type: 'PhysicalInterface',
+  mode: 'NONE',
+  hardware: { duplex: 'auto', speed: 'auto' },
+  enabled: 'true',
+  MTU: '1500',
+  fragmentReassembly: false,
+  ipv4: { static: { address: '10.255.255.12', netmask: '24' } },
+  ipv6: 
+   { enableDHCPAddrConfig: false,
+     enableDHCPNonAddrConfig: false,
+     dadAttempts: 1,
+     nsInterval: 1000,
+     reachableTime: 0,
+     enableRA: true,
+     raLifeTime: 1800,
+     raInterval: 200,
+     enableAutoConfig: false,
+     enableIPV6: false,
+     enforceEUI64: false },
+  managementOnly: false,
+  name: 'GigabitEthernet0/0',
+  id: '0CC78D19-EE00-0ed3-0000-012884902069',
+  ifname: 'OUTSIDE' }

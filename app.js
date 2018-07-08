@@ -111,7 +111,15 @@ var fpwr = {
         resolveWithFullResponse: true,
         rejectUnauthorized: false,
         requestCert: true,
-        json: true
+        json: true,
+    },
+    putOptions:{
+        method: "PUT",
+        resolveWithFullResponse: true,
+        rejectUnauthorized: false,
+        requestCert: true,
+        json: true,
+        simple: true
     },
     ftd_token_opts: {
         "grant_type": "password",
@@ -146,17 +154,22 @@ fpwr.runtask = function() {
                         key = currenttask[keynames[0]].devicekey,
                         policy = currenttask[keynames[0]].devicepol,
                         lic = currenttask[keynames[0]].lic;
-                        fpwr.devicePost(devicename, hostname, nat, key, policy, lic);
+                    fpwr.devicePost(devicename, hostname, nat, key, policy, lic);
                 break;
             case "devicephysicalintfput":
-                var mode = ,
-                    duplex = ,
-                    speed = ,
-                    enabled = ,
-                    logicalname = ,
-                    
-
-
+                var mode = currenttask[keynames[0]].mode,
+                    duplex = currenttask[keynames[0]].duplex,
+                    speed = currenttask[keynames[0]].speed,
+                    enabled = currenttask[keynames[0]].enabled,
+                    logicalname = currenttask[keynames[0]].logicalname,
+                    MTU = currenttask[keynames[0]].MTU,
+                    ipv4method = currenttask[keynames[0]].ipv4method,
+                    ipv4 = currenttask[keynames[0]].ipv4,
+                    ipv4mask = currenttask[keynames[0]].ipv4mask,
+                    physicalinterface = currenttask[keynames[0]].physicalinterface,
+                    devicename = currenttask[keynames[0]].devicename;
+                fpwr.deviceinterfaceput(devicename, physicalinterface, mode, duplex, speed, enabled, MTU, logicalname, ipv4method, ipv4, ipv4mask);
+                break;
             default:
                 console.log("Yes, we have no bananas today", new Date().toTimeString());
         }
@@ -179,11 +192,13 @@ fpwr.checktask = function() {
 
 fpwr.gettaskstatus = async function() {
     fpwr.getOptions.uri = fpwr.fpmc_server + fpwr.servicesURL.taskstatuses + "/" + fpwr.currentTaskUUID;
+    console.log("debug: entered gettaskstatus");
     fpmcAPI(fpwr.getOptions)
     .then( () => {
         console.log("not yet", fpwr.timeoutCounter, "/10", new Date().toTimeString());
     })
     .catch(function(err){
+        console.log("debug: no task found....  Resetting");
         fpwr.currentTaskUUID = "";
     })
 }
@@ -206,6 +221,71 @@ fpwr.devicePost = async function(name, hostname, nat, key, policy, lic) {
     fpwr.postAPI(uridev, device, 202, "devicePost", "devicepost-result");
 }
 
+fpwr.deviceinterfaceput = async function(devicename, physicalinterface, mode, duplex, speed, enabled, MTU, logicalname, ipv4method, ipv4, ipv4mask) {
+    console.log("updating device interface", new Date().toTimeString());
+    var cUUID = await fpwr.getUUIDbyName(fpwr.servicesURL.devicerecords, devicename);
+    var intfurl = fpwr.servicesURL.devicerecords + "/" + cUUID + "/physicalinterfaces";
+    fpwr.getOptions.uri = fpwr.fpmc_server + fpwr.servicesURL.devicerecords + "/" + cUUID + "/physicalinterfaces";
+    fpmcAPI(fpwr.getOptions)
+    .then(async(response) => {
+        if (fpwr.timeoutCounter > 10 ) {
+            console.log("debug: too many timeouts");
+        } else if (response.statusCode === 404) {
+            console.log("device not ready yet");
+            fpwr.timeoutCounter++;
+            setTimeout(fpwr.runtask, 45000);
+        } else if (response.statusCode === 200) {
+            fpwr.timeoutCounter = 0;
+            var oUUID = await fpwr.getUUIDbyName(intfurl, physicalinterface);
+            var newintf = new fpwr.ngfwPhysicalIntf(mode, duplex, speed, enabled, MTU, logicalname, ipv4method, ipv4, ipv4mask, physicalinterface, oUUID);
+            var putURL = fpwr.servicesURL.devicerecords + "/" + cUUID + "/physicalinterfaces" + "/" + oUUID;
+            fpwr.putAPI(putURL, newintf, 200, "deviceinterfaceput", "interfaceput-result"); 
+        }
+    })
+    .catch((err)=>{
+        console.log("debug: something else happened");
+        fpwr.timeoutCounter++;
+        setTimeout(fpwr.runtask, 45000);
+    })
+
+
+    // fpwr.getOptions.uri = fpwr.fpmc_server + intfurl + "/" + oUUID;
+    // fpmcAPI(fpwr.getOptions)
+    //     .then( (response) => {
+    //         var currentInterfaceObject = response.body;
+    //         var putURL = fpwr.servicesURL.devicerecords + "/" + cUUID + "/physicalinterfaces" + "/" + oUUID;
+    //         currentInterfaceObject.mode = mode;
+    //         currentInterfaceObject.hardware = {
+    //             duplex: duplex,
+    //             speed: speed
+    //         }
+    //         currentInterfaceObject.enabled = (enabled);
+    //         currentInterfaceObject.MTU = parseInt(MTU);
+    //         currentInterfaceObject.ifname = logicalname;
+    //         if (ipv4method === "static"){
+    //                 currentInterfaceObject.ipv4 = {
+    //                     static:  {
+    //                         address: ipv4,
+    //                         netmask: ipv4mask
+    //                     }
+    //                 }
+    //         } else if (ipv4method = "dhcp"){
+    //                 currentInterfaceObject.ipv4 = {
+    //                     dhcp:  {
+    //                         enableDefaultRouteDHCP: true,
+    //                         dhcpRoutemetric: 1
+    //                     }
+    //                 }
+    //         }
+    //         console.log(currentInterfaceObject);
+    //         fpwr.putAPI(putURL, currentInterfaceObject, 200, "deviceinterfaceput");
+
+    //     })
+    //     .catch((err) =>  {
+    //         console.log(err);
+    //     });    
+}
+ 
 fpwr.getUUIDbyName = async function(url, name) {
     fpwr.getOptions.uri = fpwr.fpmc_server + url;
     var UUIDobj = await fpmcAPI(fpwr.getOptions);
@@ -271,7 +351,7 @@ fpwr.postAPI = function(url, postData, responseCode, callingFunction, successMes
             fpwr.socketResponse(successMessage, response.body);
             if (response.body.metadata.hasOwnProperty("task")){
                 fpwr.currentTaskUUID = response.body.metadata.task.id;
-                console.log(fpwr.currentTaskUUID);
+                console.log("running task ID", fpwr.currentTaskUUID);
             }
             fpwr.checktask();
         } else {
@@ -296,26 +376,32 @@ fpwr.putAPI = function(url, putData, responseCode, callingFunction, successMessa
             "X-auth-access-token": fpwr.authToken,
             "Content-Type": "application/json"
         },
-        body: postData,
+        body: putData,
         resolveWithFullResponse: true,
         rejectUnauthorized: false,
         requestCert: true,
-        json: true
+        json: true,
+        simple: true
     }
     fpmcAPI(options)
     .then(function(response) {
         if (response.statusCode === responseCode) {
-            console.log(response.statusCode, "success", successMessage, new Date().toTimeString());
-            let data = JSON.parse(response.body);
-            return data;
+            console.log(response.statusCode, "success", successMessage);
+            fpwr.tasklist.shift();
+            fpwr.socketResponse(successMessage, response.body);
+            if (response.body.metadata.hasOwnProperty("task")){
+                fpwr.currentTaskUUID = response.body.metadata.task.id;
+                console.log("running task ID", fpwr.currentTaskUUID);
+            }
+            fpwr.checktask();
         } else {
             console.log(response.statusCode, response.statusMessage);
-            console.log(response.body.description);
+            console.log(response.body.error.messages);
             return false;
         }
     })
     .catch(function(err){
-        console.log(err);
+            console.log(err.message);
     });
 }
 
@@ -340,9 +426,11 @@ fpwr.registerAPI = function(server, username, password){
 			fpwr.authToken = response.headers["x-auth-access-token"];
             fpwr.authRefreshToken = response.headers["x-auth-refresh-token"];
             fpwr.domain_uuid = response.headers["domain_uuid"];
-            fpwr.getOptions.headers = { "X-auth-access-token": fpwr.authToken };
+            fpwr.getOptions.headers = { 
+                "X-auth-access-token": fpwr.authToken };
+            fpwr.putOptions.headers = { 
+                "X-auth-access-token": fpwr.authToken };
             fpwr.methods(response.headers["domain_uuid"]);
-            console.log(response.statusCode, "successfully registered", new Date().toTimeString());
             fpwr.tasklist.shift();
             fpwr.registered(response);
             fpwr.checktask();
@@ -440,7 +528,7 @@ fpwr.ngipsPhysicalIntf = function(name, id, enabled, type) {
     this.interfaceType = "INLINE"
 }
 
-fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, logicalname, name, uuid, ipv4method, ipv4, ipv4mask) {
+fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, logicalname, ipv4method, ipv4, ipv4mask, name, UUID) {
     // update this to include zones afterwards
     this.type = "PhysicalInterface",
     this.mode = mode,
@@ -452,8 +540,8 @@ fpwr.ngfwPhysicalIntf = function(mode, duplex, speed, enabled, MTU, logicalname,
     this.MTU = MTU,
     this.managementOnly = false,
     this.ifname = logicalname,
-    // this.name = name,
-    this.id = uuid
+    this.name = name,
+    this.id = UUID
     if (ipv4method === "dhcp") {
         this.ipv4 = {
             dhcp: {
