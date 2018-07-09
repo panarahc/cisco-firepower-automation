@@ -1,10 +1,10 @@
 <% include partials/header.ejs %>
-
+<div id="fpmcbasic">
 <form id="fpmccredentials" data-id="fpmccredentials" class="ui form">
 	<div class="fields">
 		<div class="required field">
 			<label>FPMC IP</label>
-			<input type="text" name="fpmcip" value="10.255.0.10">
+			<input type="text" name="fpmcip" value="">
 		</div>
 		<div class="required field">
 			<label>Username</label>
@@ -21,7 +21,7 @@
 	<div class="fields">
 		<div class="required field">
 			<label>ACPolicy Name</label>
-			<input type="text" name="acpolicy" value="API Policy">
+			<input type="text" name="acpolicy" value="Auto API Policy">
 		</div>
 		<div class="required field">
 			<label>ACPolicy Description</label>
@@ -29,18 +29,19 @@
 		</div>
 	</div>	
 </form>
+</div>
 
 <div id="device">
 	<div id="devicerecord">
 	<form id="devicerecordpost" data-id="devicerecordpost" class="ui form">
-		<div class="fields">
+		<div class="five fields">
 			<div class="required field">
 				<label>Device Name</label>
-				<input type="text" name="devicename" value="FTDv-">
+				<input type="text" name="devicename" value="">
 			</div>		
 			<div class="required field">
 				<label>Management IP</label>
-				<input type="text" name="hostname" value="10.255.0.10">
+				<input type="text" name="hostname" value="">
 			</div>		
 			<div class="required field">
 				<label>NAT ID</label>
@@ -52,7 +53,7 @@
 			</div>		
 			<div class="field">
 				<label>Access Policy</label>
-				<input type="text" name="devicepol" value="">
+				<input type="text" name="devicepol" value="Auto API Policy">
 			</div>
 		</div>	
 		<div class="fields">
@@ -70,7 +71,7 @@
 			</div>
 		</div>			
 	</form>
-	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui form">
+	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui tiny form">
 		<div class="six fields">
 			<div class="required field">
 				<label>interface</label>
@@ -139,7 +140,7 @@
 			</div>
 		</div>
 	</form>
-	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui form">
+	<form id="devicephysicalintfput" data-id="devicephysicalintfput" data-device-name="" class="ui tiny form">
 		<div class="six fields">
 			<div class="required field">
 				<label>interface</label>
@@ -210,7 +211,7 @@
 	</form>
 	</div>
 </div>
-<div>
+<div id="submitbuttons">
 	<button id="newdevice" class="ui primary button">New Device</button>
 	<button id="removedevice" class="ui primary button">Remove Device</button>
 	<button id="submit" class="ui secondary button">Submit All</button>

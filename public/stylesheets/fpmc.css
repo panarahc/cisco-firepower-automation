@@ -7,3 +7,20 @@ body {
     margin-left: 10px;
     margin-right: 10px;
 }
+
+form {
+	border: 2px solid orange;
+	border-radius: 5px;
+	margin: 5px;
+	padding: 4px;
+}
+
+div#devicerecord, div#fpmcbasic {
+	border: 2px solid black;
+	border-radius: 5px;
+}
+
+#submitbuttons {
+	margin: 5px;
+	padding: 4px;	
+}

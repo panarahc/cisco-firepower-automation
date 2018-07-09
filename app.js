@@ -243,47 +243,10 @@ fpwr.deviceinterfaceput = async function(devicename, physicalinterface, mode, du
         }
     })
     .catch((err)=>{
-        console.log("debug: something else happened");
+        console.log("debug: something else happened", fpwr.timeoutCounter);
         fpwr.timeoutCounter++;
         setTimeout(fpwr.runtask, 45000);
     })
-
-
-    // fpwr.getOptions.uri = fpwr.fpmc_server + intfurl + "/" + oUUID;
-    // fpmcAPI(fpwr.getOptions)
-    //     .then( (response) => {
-    //         var currentInterfaceObject = response.body;
-    //         var putURL = fpwr.servicesURL.devicerecords + "/" + cUUID + "/physicalinterfaces" + "/" + oUUID;
-    //         currentInterfaceObject.mode = mode;
-    //         currentInterfaceObject.hardware = {
-    //             duplex: duplex,
-    //             speed: speed
-    //         }
-    //         currentInterfaceObject.enabled = (enabled);
-    //         currentInterfaceObject.MTU = parseInt(MTU);
-    //         currentInterfaceObject.ifname = logicalname;
-    //         if (ipv4method === "static"){
-    //                 currentInterfaceObject.ipv4 = {
-    //                     static:  {
-    //                         address: ipv4,
-    //                         netmask: ipv4mask
-    //                     }
-    //                 }
-    //         } else if (ipv4method = "dhcp"){
-    //                 currentInterfaceObject.ipv4 = {
-    //                     dhcp:  {
-    //                         enableDefaultRouteDHCP: true,
-    //                         dhcpRoutemetric: 1
-    //                     }
-    //                 }
-    //         }
-    //         console.log(currentInterfaceObject);
-    //         fpwr.putAPI(putURL, currentInterfaceObject, 200, "deviceinterfaceput");
-
-    //     })
-    //     .catch((err) =>  {
-    //         console.log(err);
-    //     });    
 }
  
 fpwr.getUUIDbyName = async function(url, name) {
